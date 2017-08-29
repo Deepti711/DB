@@ -1,0 +1,40 @@
+CREATE TABLE LINEITEM (        ORDERKEY       INT,        PARTKEY        INT,        SUPPKEY        INT,        LINENUMBER     INT,        QUANTITY       DECIMAL,        EXTENDEDPRICE  DECIMAL,        DISCOUNT       DECIMAL,        TAX            DECIMAL,        RETURNFLAG     CHAR(1),        LINESTATUS     CHAR(1),        SHIPDATE       DATE,        COMMITDATE     DATE,        RECEIPTDATE    DATE,        SHIPINSTRUCT   VARCHAR(25),        SHIPMODE       VARCHAR(10),        COMMENT        VARCHAR(44),
+
+	PRIMARY KEY (ORDERKEY,LINENUMBER)    );CREATE TABLE ORDERS (        ORDERKEY       INT,        CUSTKEY        INT,        ORDERSTATUS    CHAR(1),        TOTALPRICE     DECIMAL,        ORDERDATE      DATE,        ORDERPRIORITY  VARCHAR(15),        CLERK          VARCHAR(15),        SHIPPRIORITY   INT,        COMMENT        VARCHAR(79),
+PRIMARY KEY (ORDERKEY, CUSTKEY)    );CREATE TABLE CUSTOMER (        CUSTKEY      INT,        NAME         VARCHAR(25),        ADDRESS      VARCHAR(40),        NATIONKEY    INT,        PHONE        VARCHAR(15),        ACCTBAL      DECIMAL,        MKTSEGMENT   VARCHAR(10),        COMMENT      VARCHAR(117),
+
+PRIMARY KEY (CUSTKEY, NATIONKEY)	    );CREATE TABLE SUPPLIER (        SUPPKEY      INT,        NAME         VARCHAR(25),        ADDRESS      VARCHAR(40),        NATIONKEY    INT,        PHONE        VARCHAR(15),        ACCTBAL      DECIMAL,        COMMENT      VARCHAR(101),
+PRIMARY KEY (SUPPKEY, NATIONKEY)    );CREATE TABLE PARTSUPP (        PARTKEY      INT,        SUPPKEY      INT,        AVAILQTY     INT,        SUPPLYCOST   DECIMAL,        COMMENT      VARCHAR(199),
+
+PRIMARY KEY (PARTKEY, SUPPKEY)    );CREATE TABLE NATION (        NATIONKEY    INT,        NAME         VARCHAR(25),        REGIONKEY    INT,        COMMENT      VARCHAR(152),
+PRIMARY KEY (NATIONKEY)    );CREATE TABLE REGION (        REGIONKEY    INT,        NAME         VARCHAR(25),        COMMENT      VARCHAR(152),
+
+PRIMARY KEY (REGIONKEY)    );
+
+
+
+
+
+
+
+select
+	o_orderpriority,
+	count(*) as order_count
+from
+	orders
+where
+	o_orderdate >= date ':1'
+	and o_orderdate < date ':1' + interval '3' month
+	and exists (
+		select
+			*
+		from
+			lineitem
+		where
+			l_orderkey = o_orderkey
+			and l_commitdate < l_receiptdate
+	)
+group by
+	o_orderpriority
+order by
+	o_orderpriority;
